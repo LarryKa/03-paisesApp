@@ -6,19 +6,27 @@ import { Country } from '../../interfaces/paise.interface';
   selector: 'app-por-pais',
   templateUrl: './por-pais.component.html',
   styles: [
+    `
+      li{
+        cursor: pointer;
+      }
+    `
   ]
 })
 export class PorPaisComponent implements OnInit {
   termino: string = "";
   hayError: boolean = false;
   paises: Country[] = [];
+  paisesSugeridos: Country[] = [];
+  mostrarSugerencias: Boolean = false;
   constructor( private paisService: PaisService ) { }
 
   ngOnInit(): void {
   }
 
   buscar( termino: string ){
-    this.hayError = false;    
+    this.hayError = false;  
+    this.mostrarSugerencias = false;  
 
     this.paisService.buscarPais( termino ).subscribe(
       (paises) => {        
@@ -33,7 +41,17 @@ export class PorPaisComponent implements OnInit {
 
   sugerencias( termino: string ){
     this.hayError = false;
-    // TODO: crear sugerencias
+    this.termino = termino;
+    this.mostrarSugerencias = true;
+    
+    this.paisService.buscarCapital( termino )
+      .subscribe( 
+        paises => this.paisesSugeridos = paises.splice(0,5),
+        (err) => this.paisesSugeridos = []
+      );
   }
 
+  buscarSugerido( termino: string ){
+    this.buscar( termino );    
+  }
 }
